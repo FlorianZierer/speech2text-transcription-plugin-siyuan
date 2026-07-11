@@ -4,7 +4,8 @@ dist/
 .DS_Store
 .idea/
 .vscode/
-index.js
-index.css
-i18n/
 tmp/
+# dev 模式在仓库根生成的产物（不要误伤 src/ 下的源文件）
+/index.js
+/index.css
+/i18n/
