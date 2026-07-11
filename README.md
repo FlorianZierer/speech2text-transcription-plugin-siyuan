@@ -49,4 +49,4 @@ npm run dev     # 开发模式，产物输出到仓库根（index.js/index.css�
 npm run build   # 生产构建，产出 dist/ 与 package.zip
 ```
 
-开发时把本仓库放到思源工作区的 `data/plugins/plugin-voice2text/` 下，即可热编译调试。
+开发时把本仓库放到思源工作区的 `data/plugins/siyuan-plugin-voice2text/` 下，即可热编译调试。
