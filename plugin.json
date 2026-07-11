@@ -2,7 +2,7 @@
   "name": "plugin-voice2text",
   "author": "chenxuan",
   "url": "https://github.com/chenxuan520/siyuan-plugin-voice2text",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "minAppVersion": "3.0.0",
   "backends": ["all"],
   "frontends": ["all"],
