@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.zip
+.DS_Store
+.idea/
+.vscode/
+index.js
+index.css
+i18n/
+tmp/
