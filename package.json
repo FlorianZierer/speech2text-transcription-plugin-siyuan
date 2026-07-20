@@ -1,6 +1,6 @@
 {
   "name": "siyuan-plugin-voice2text",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Voice to text for SiYuan, powered by Xiaomi MiMo ASR",
   "repository": "",
   "homepage": "",

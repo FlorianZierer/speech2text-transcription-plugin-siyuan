@@ -1,9 +1,10 @@
-import { Plugin, Setting, showMessage, getAllEditor } from "siyuan"
+import { Plugin, Setting, showMessage, getAllEditor, fetchSyncPost } from "siyuan"
 import { listProviders, getProvider, DEFAULT_PROVIDER_ID } from "./providers"
 import type { ProviderConfig, RecognitionSession, VoiceProvider } from "./providers/types"
 import "./index.scss"
 
 const STORAGE_NAME = "config.json"
+const LEGACY_PLUGIN_NAME = "plugin-voice2text"
 const ICON_ID = "iconVoice2Text"
 
 type PluginConfig = {
@@ -15,15 +16,26 @@ type PluginConfig = {
 
 type Phase = "idle" | "recording" | "transcribing"
 
+type InsertTarget = {
+  editor: any
+  range?: Range
+}
+
 export default class Voice2TextPlugin extends Plugin {
   private config: PluginConfig = { provider: DEFAULT_PROVIDER_ID, cfg: {} }
   private phase: Phase = "idle"
   private session: RecognitionSession | undefined
   private topBarElement: HTMLElement | undefined
   private currentProtyle: any = null
+  private insertTarget: InsertTarget | undefined
 
   private trackProtyle = ({ detail }: any) => {
     if (detail?.protyle) this.currentProtyle = detail.protyle
+  }
+
+  private rememberInsertTarget = () => {
+    const target = this.captureInsertTarget()
+    if (target?.range || !this.insertTarget) this.insertTarget = target
   }
 
   onload() {
@@ -36,14 +48,7 @@ export default class Voice2TextPlugin extends Plugin {
     this.eventBus.on("switch-protyle", this.trackProtyle)
     this.eventBus.on("loaded-protyle-static", this.trackProtyle)
 
-    void this.loadData(STORAGE_NAME).then((data) => {
-      if (data && typeof data === "object") {
-        this.config = {
-          provider: typeof data.provider === "string" ? data.provider : DEFAULT_PROVIDER_ID,
-          cfg: data.cfg && typeof data.cfg === "object" ? data.cfg : {},
-        }
-      }
-    })
+    void this.loadConfig()
   }
 
   onLayoutReady() {
@@ -54,9 +59,11 @@ export default class Voice2TextPlugin extends Plugin {
       callback: () => this.onToggle(),
     })
     this.topBarElement.classList.add("plugin-voice2text-topbar")
+    this.topBarElement.addEventListener("pointerdown", this.rememberInsertTarget, true)
   }
 
   onunload() {
+    this.topBarElement?.removeEventListener("pointerdown", this.rememberInsertTarget, true)
     this.eventBus.off("switch-protyle", this.trackProtyle)
     this.eventBus.off("loaded-protyle-static", this.trackProtyle)
     this.session?.abort()
@@ -69,6 +76,64 @@ export default class Voice2TextPlugin extends Plugin {
 
   private cfgOf(providerId: string): ProviderConfig {
     return this.config.cfg[providerId] || {}
+  }
+
+  private normalizeConfig(data: unknown): PluginConfig | undefined {
+    if (!data || typeof data !== "object") return undefined
+    const raw = data as Record<string, unknown>
+    return {
+      provider: typeof raw.provider === "string" ? raw.provider : DEFAULT_PROVIDER_ID,
+      cfg: raw.cfg && typeof raw.cfg === "object" ? raw.cfg as Record<string, ProviderConfig> : {},
+    }
+  }
+
+  private hasUserConfig(config: PluginConfig | undefined): boolean {
+    if (!config) return false
+    if (config.provider && config.provider !== DEFAULT_PROVIDER_ID) return true
+    return listProviders().some((provider) => {
+      const providerCfg = config.cfg[provider.id] || {}
+      return provider.fields.some((field) => {
+        const value = providerCfg[field.key]
+        return typeof value === "string" && value.trim() !== "" && value !== (field.default || "")
+      })
+    })
+  }
+
+  private hasUsableConfig(config: PluginConfig | undefined): boolean {
+    if (!config) return false
+    return Object.keys(config.cfg || {}).some((providerId) => {
+      const provider = getProvider(providerId)
+      return !!provider && !provider.validate(config.cfg[providerId] || {})
+    })
+  }
+
+  private async loadLegacyConfig(): Promise<PluginConfig | undefined> {
+    if (this.name === LEGACY_PLUGIN_NAME) return undefined
+    try {
+      const data = await fetchSyncPost("/api/file/getFile", {
+        path: `/data/storage/petal/${LEGACY_PLUGIN_NAME}/${STORAGE_NAME}`,
+      })
+      return this.normalizeConfig(data)
+    } catch {
+      return undefined
+    }
+  }
+
+  private async loadConfig() {
+    const currentConfig = this.normalizeConfig(await this.loadData(STORAGE_NAME))
+    if (this.hasUserConfig(currentConfig)) {
+      this.config = currentConfig
+      return
+    }
+
+    const legacyConfig = await this.loadLegacyConfig()
+    if (this.hasUserConfig(legacyConfig) && this.hasUsableConfig(legacyConfig)) {
+      this.config = legacyConfig
+      void this.saveData(STORAGE_NAME, legacyConfig).catch(() => undefined)
+      return
+    }
+
+    if (currentConfig) this.config = currentConfig
   }
 
   private setupSetting() {
@@ -94,6 +159,7 @@ export default class Voice2TextPlugin extends Plugin {
       description: this.t("settingProviderDesc"),
       direction: "row",
       createActionElement: () => {
+        fieldInputs.length = 0
         providerSelect.className = "b3-select fn__flex-center fn__size200"
         providerSelect.innerHTML = ""
         for (const p of listProviders()) {
@@ -109,13 +175,13 @@ export default class Voice2TextPlugin extends Plugin {
 
     // 2) 每个 provider 的配置项（标题带 provider 名前缀，清楚区分）
     for (const provider of listProviders()) {
-      const saved = this.cfgOf(provider.id)
       for (const field of provider.fields) {
         this.setting.addItem({
           title: `${this.t(provider.displayNameKey)} · ${this.t(field.labelKey)}`,
           description: field.descKey ? this.t(field.descKey) : "",
           direction: "row",
           createActionElement: () => {
+            const saved = this.cfgOf(provider.id)
             const initial = saved[field.key] ?? field.default ?? ""
             if (field.type === "select") {
               const sel = document.createElement("select")
@@ -160,10 +226,13 @@ export default class Voice2TextPlugin extends Plugin {
       void this.stopAndTranscribe()
       return
     }
+    this.rememberInsertTarget()
     void this.startRecording()
   }
 
   private async startRecording() {
+    this.rememberInsertTarget()
+
     const provider = getProvider(this.config.provider)
     if (!provider) {
       showMessage(this.t("errNoProvider"), 4000, "error")
@@ -209,6 +278,7 @@ export default class Voice2TextPlugin extends Plugin {
       if (!text) {
         showMessage(this.t("noAudio"), 3000, "info")
         this.setPhase("idle")
+        this.insertTarget = undefined
         return
       }
       const ok = this.insertText(text)
@@ -217,22 +287,124 @@ export default class Voice2TextPlugin extends Plugin {
     } catch (error) {
       this.setPhase("idle")
       showMessage(this.providerError(provider, error), 6000, "error")
+    } finally {
+      this.insertTarget = undefined
+    }
+  }
+
+  private normalizeEditor(candidate: any): any {
+    if (!candidate) return null
+    if (typeof candidate.insert === "function") return candidate
+    if (typeof candidate.getInstance === "function") return candidate.getInstance()
+    return null
+  }
+
+  private getCandidateEditors(): any[] {
+    const editors: any[] = []
+    const add = (candidate: any) => {
+      const editor = this.normalizeEditor(candidate)
+      if (editor && !editors.includes(editor)) editors.push(editor)
+    }
+
+    add(this.currentProtyle)
+    const mobile = (window as any).siyuan?.mobile
+    add(mobile?.popEditor)
+    add(mobile?.editor)
+
+    try {
+      for (const editor of getAllEditor() || []) add(editor)
+    } catch {
+      /* ignore */
+    }
+
+    return editors
+  }
+
+  private getSelectionRange(): Range | undefined {
+    const selection = window.getSelection()
+    if (!selection || selection.rangeCount === 0) return undefined
+    try {
+      return selection.getRangeAt(0)
+    } catch {
+      return undefined
+    }
+  }
+
+  private cloneRange(range: Range | undefined): Range | undefined {
+    try {
+      return range?.cloneRange()
+    } catch {
+      return undefined
+    }
+  }
+
+  private editorContainsRange(editor: any, range: Range | undefined): boolean {
+    const element = editor?.protyle?.wysiwyg?.element || editor?.protyle?.element
+    if (!element || !range) return false
+    try {
+      return element.isSameNode(range.startContainer) || element.contains(range.startContainer)
+    } catch {
+      return false
+    }
+  }
+
+  private captureInsertTarget(): InsertTarget | undefined {
+    const editors = this.getCandidateEditors()
+    if (editors.length === 0) return undefined
+
+    const ranges = [
+      this.getSelectionRange(),
+      (window as any).siyuan?.mobile?.touchRange as Range | undefined,
+    ]
+    for (const range of ranges) {
+      for (const editor of editors) {
+        if (this.editorContainsRange(editor, range)) {
+          return { editor, range: this.cloneRange(range) }
+        }
+      }
+    }
+
+    for (const editor of editors) {
+      const toolbarRange = editor?.protyle?.toolbar?.range
+      if (this.editorContainsRange(editor, toolbarRange)) {
+        return { editor, range: this.cloneRange(toolbarRange) }
+      }
+    }
+
+    return { editor: editors[0] }
+  }
+
+  private restoreInsertRange(target: InsertTarget): boolean {
+    const range = this.cloneRange(target.range)
+    if (!this.editorContainsRange(target.editor, range)) return false
+
+    try {
+      target.editor.protyle.toolbar.range = range
+      const editable = target.editor.protyle?.wysiwyg?.element as HTMLElement | undefined
+      editable?.focus?.({ preventScroll: true })
+      const selection = window.getSelection()
+      selection?.removeAllRanges()
+      selection?.addRange(range)
+      return true
+    } catch {
+      return false
     }
   }
 
   /** 把文字插入当前编辑器光标处。返回是否成功。 */
   private insertText(text: string): boolean {
-    let editor: any = null
-    if (this.currentProtyle && typeof this.currentProtyle.getInstance === "function") {
-      editor = this.currentProtyle.getInstance()
-    }
-    if (!editor) {
-      const all = getAllEditor()
-      if (all && all.length > 0) editor = all[0]
-    }
+    const target = this.insertTarget || this.captureInsertTarget()
+    const editor = target?.editor
     if (!editor || typeof editor.insert !== "function") return false
-    editor.insert(text, false, true)
-    return true
+
+    try {
+      const hasRange = !!target && this.restoreInsertRange(target)
+      editor.insert(text, false, hasRange)
+      return true
+    } catch (error) {
+      console.error("[voice2text] failed to insert recognized text", error)
+      return false
+    }
   }
 
   /** provider 抛出的错误可能是 i18n key，也可能是已成句的错误消息。 */
