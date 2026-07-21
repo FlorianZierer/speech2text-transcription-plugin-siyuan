@@ -18,6 +18,9 @@
   "stillTranscribing": "Still recognizing the previous clip, please wait.",
   "noAudio": "Nothing was recognized.",
   "noEditor": "No active document found to insert text into.",
+  "errNoCursor": "Recognition succeeded, but no usable editor cursor was found. Click the target insertion point before recording.",
+  "errInsertFailed": "Recognition succeeded, but inserting text failed",
+  "errMobileUnsupported": "This frontend is not supported by Voice to Text. Use it on desktop or in a desktop browser.",
   "errNoProvider": "The selected recognition service was not found. Please reselect it in settings.",
   "errMimoNoApiKey": "Please set your Xiaomi MiMo api-key in the plugin settings first.",
   "errWebSpeechUnsupported": "This browser does not support Web Speech recognition. Please use another service."

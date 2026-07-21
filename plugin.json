@@ -2,10 +2,10 @@
   "name": "siyuan-plugin-voice2text",
   "author": "chenxuan",
   "url": "https://github.com/chenxuan520/siyuan-plugin-voice2text",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "minAppVersion": "3.0.0",
   "backends": ["all"],
-  "frontends": ["all"],
+  "frontends": ["desktop", "desktop-window", "browser-desktop"],
   "displayName": {
     "default": "Voice to Text",
     "zh-CN": "语音转文字"

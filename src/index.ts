@@ -1,4 +1,4 @@
-import { Plugin, Setting, showMessage, getAllEditor, fetchSyncPost } from "siyuan"
+import { Plugin, Setting, showMessage, getAllEditor, fetchSyncPost, getFrontend } from "siyuan"
 import { listProviders, getProvider, DEFAULT_PROVIDER_ID } from "./providers"
 import type { ProviderConfig, RecognitionSession, VoiceProvider } from "./providers/types"
 import "./index.scss"
@@ -6,6 +6,7 @@ import "./index.scss"
 const STORAGE_NAME = "config.json"
 const LEGACY_PLUGIN_NAME = "plugin-voice2text"
 const ICON_ID = "iconVoice2Text"
+const DISABLED_FRONTENDS = new Set(["mobile", "browser-mobile"])
 
 type PluginConfig = {
   /** 当前选用的 provider id */
@@ -28,6 +29,8 @@ export default class Voice2TextPlugin extends Plugin {
   private topBarElement: HTMLElement | undefined
   private currentProtyle: any = null
   private insertTarget: InsertTarget | undefined
+  private configReady: Promise<void> = Promise.resolve()
+  private disabledOnFrontend = false
 
   private trackProtyle = ({ detail }: any) => {
     if (detail?.protyle) this.currentProtyle = detail.protyle
@@ -38,7 +41,17 @@ export default class Voice2TextPlugin extends Plugin {
     if (target?.range || !this.insertTarget) this.insertTarget = target
   }
 
+  private isDisabledFrontend(): boolean {
+    return DISABLED_FRONTENDS.has(getFrontend())
+  }
+
   onload() {
+    if (this.isDisabledFrontend()) {
+      this.disabledOnFrontend = true
+      showMessage(this.t("errMobileUnsupported"), 5000, "error")
+      return
+    }
+
     this.addIcons(`<symbol id="${ICON_ID}" viewBox="0 0 1024 1024">
 <path d="M512 640c70.7 0 128-57.3 128-128V256c0-70.7-57.3-128-128-128s-128 57.3-128 128v256c0 70.7 57.3 128 128 128z m288-128c0 141.4-104.6 258.3-240 277.6V960h-96v-98.4C328.6 842.3 224 725.4 224 584h64c0 123.7 100.3 224 224 224s224-100.3 224-224h64z" fill="currentColor"/>
 </symbol>`)
@@ -48,10 +61,11 @@ export default class Voice2TextPlugin extends Plugin {
     this.eventBus.on("switch-protyle", this.trackProtyle)
     this.eventBus.on("loaded-protyle-static", this.trackProtyle)
 
-    void this.loadConfig()
+    this.configReady = this.loadConfig()
   }
 
   onLayoutReady() {
+    if (this.disabledOnFrontend) return
     this.topBarElement = this.addTopBar({
       icon: ICON_ID,
       title: this.i18n.topBarTitle,
@@ -64,6 +78,7 @@ export default class Voice2TextPlugin extends Plugin {
 
   onunload() {
     this.topBarElement?.removeEventListener("pointerdown", this.rememberInsertTarget, true)
+    if (this.disabledOnFrontend) return
     this.eventBus.off("switch-protyle", this.trackProtyle)
     this.eventBus.off("loaded-protyle-static", this.trackProtyle)
     this.session?.abort()
@@ -101,10 +116,8 @@ export default class Voice2TextPlugin extends Plugin {
 
   private hasUsableConfig(config: PluginConfig | undefined): boolean {
     if (!config) return false
-    return Object.keys(config.cfg || {}).some((providerId) => {
-      const provider = getProvider(providerId)
-      return !!provider && !provider.validate(config.cfg[providerId] || {})
-    })
+    const provider = getProvider(config.provider)
+    return !!provider && !provider.validate(config.cfg[provider.id] || {})
   }
 
   private async loadLegacyConfig(): Promise<PluginConfig | undefined> {
@@ -134,6 +147,19 @@ export default class Voice2TextPlugin extends Plugin {
     }
 
     if (currentConfig) this.config = currentConfig
+  }
+
+  openSetting() {
+    if (this.disabledOnFrontend) {
+      showMessage(this.t("errMobileUnsupported"), 5000, "error")
+      return
+    }
+    void this.openSettingAfterConfigReady()
+  }
+
+  private async openSettingAfterConfigReady() {
+    await this.configReady
+    super.openSetting()
   }
 
   private setupSetting() {
@@ -218,6 +244,10 @@ export default class Voice2TextPlugin extends Plugin {
   }
 
   private onToggle() {
+    if (this.disabledOnFrontend) {
+      showMessage(this.t("errMobileUnsupported"), 5000, "error")
+      return
+    }
     if (this.phase === "transcribing") {
       showMessage(this.t("stillTranscribing"), 2000, "info")
       return
@@ -231,6 +261,11 @@ export default class Voice2TextPlugin extends Plugin {
   }
 
   private async startRecording() {
+    if (this.disabledOnFrontend) {
+      showMessage(this.t("errMobileUnsupported"), 5000, "error")
+      return
+    }
+    await this.configReady
     this.rememberInsertTarget()
 
     const provider = getProvider(this.config.provider)
@@ -262,6 +297,10 @@ export default class Voice2TextPlugin extends Plugin {
   }
 
   private async stopAndTranscribe() {
+    if (this.disabledOnFrontend) {
+      showMessage(this.t("errMobileUnsupported"), 5000, "error")
+      return
+    }
     const session = this.session
     this.session = undefined
     if (!session) {
@@ -281,9 +320,8 @@ export default class Voice2TextPlugin extends Plugin {
         this.insertTarget = undefined
         return
       }
-      const ok = this.insertText(text)
+      this.insertText(text)
       this.setPhase("idle")
-      if (!ok) showMessage(this.t("noEditor"), 4000, "error")
     } catch (error) {
       this.setPhase("idle")
       showMessage(this.providerError(provider, error), 6000, "error")
@@ -391,19 +429,20 @@ export default class Voice2TextPlugin extends Plugin {
     }
   }
 
-  /** 把文字插入当前编辑器光标处。返回是否成功。 */
-  private insertText(text: string): boolean {
+  /** 把文字插入当前编辑器光标处。失败时抛错，由上层统一提示。 */
+  private insertText(text: string): void {
     const target = this.insertTarget || this.captureInsertTarget()
     const editor = target?.editor
-    if (!editor || typeof editor.insert !== "function") return false
+    if (!editor || typeof editor.insert !== "function") throw new Error("noEditor")
 
+    const hasRange = !!target && this.restoreInsertRange(target)
+    if (!hasRange) throw new Error("errNoCursor")
     try {
-      const hasRange = !!target && this.restoreInsertRange(target)
-      editor.insert(text, false, hasRange)
-      return true
+      editor.insert(text, false, true)
     } catch (error) {
       console.error("[voice2text] failed to insert recognized text", error)
-      return false
+      const msg = error instanceof Error ? error.message : String(error)
+      throw new Error(`${this.t("errInsertFailed")}${msg ? "：" + msg : ""}`)
     }
   }
 
