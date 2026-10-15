@@ -14,7 +14,7 @@ function environment(){
       this.selectionStart=0;this.selectionEnd=0;this.selectionDirection='forward';this.scrollHeight=90;
       this.classList={add(){},toggle(){}};
     }
-    appendChild(el){el.parentElement=this;this.children.push(el);return el}
+    appendChild(el){if(el.parentElement)el.parentElement.children=el.parentElement.children.filter(child=>child!==el);el.parentElement=this;this.children.push(el);return el}
     setAttribute(k,v){this.attributes[k]=v}
     addEventListener(k,v){this.events[k]=v}
     set innerHTML(v){this.html=v;this.children=[]}
@@ -162,7 +162,7 @@ test('preview microphone dictates into selection and preserves document bookmark
   const e=recordingFixture(),p=e.plugin;
   await p.onRecordCommand();await p.stopAndTranscribe();
   p.overlay.setPreview('Hello old world');p.overlay.previewEl.setSelectionRange(6,9);
-  const mic=p.overlay.actionsEl.children[1];assert.match(mic.className,/microphone/);
+  const mic=p.overlay.microphoneButton;assert.match(mic.className,/microphone/);
   e.setResult('new');mic.events.click(key('click'));await new Promise(setImmediate);
   assert.equal(p.overlay.previewEl.readOnly,true);assert.equal(p.insertTarget,e.target);
   await p.stopAndTranscribe();assert.equal(p.overlay.getPreview(),'Hello new world');
@@ -227,4 +227,44 @@ test('cancel during microphone permission request aborts the late session',async
   e.provider.createSession=()=>new Promise(resolve=>ready=resolve);
   const starting=p.onRecordCommand();await Promise.resolve();p.cancelSession();ready(e.session);await starting;
   assert.equal(e.aborted,1);assert.equal(p.overlay,undefined);assert.equal(p.phase,'idle');assert.equal(p.recordingOperation,undefined);
+});
+
+
+test('additional dictation keeps the review field and controls with a compact footer visual',async()=>{
+  const e=recordingFixture(),p=e.plugin;
+  await p.onRecordCommand();await p.stopAndTranscribe();
+  const overlay=p.overlay,input=overlay.previewEl,copy=overlay.copyButton,mic=overlay.microphoneButton,accept=overlay.acceptButton;
+  overlay.setPreview('Hello world');input.setSelectionRange(6,6);
+  const height=input.style.height;
+  await p.startRecording({preview:true});
+  assert.equal(overlay.root.dataset.layout,'review');assert.equal(overlay.compactRecording,true);
+  assert.equal(overlay.visualEl.parentElement,overlay.footerVisual);assert.equal(overlay.footerVisual.parentElement,overlay.actionsEl);
+  assert.equal(overlay.copyButton,copy);assert.equal(overlay.microphoneButton,mic);assert.equal(overlay.acceptButton,accept);
+  assert.equal(accept.disabled,true);assert.equal(mic.disabled,false);assert.equal(overlay.timerEl.style.display,'none');
+  assert.equal(overlay.draftMarker.target.el,input);assert.equal(overlay.draftMarker.target.start,6);
+  assert.equal(overlay.draftMarker.draft,true);assert.equal(p.insertTarget,e.target);
+  e.callbacks.onPartial('A very long interim transcription that should not resize or rewrite the draft.');
+  assert.equal(input.value,'Hello world');assert.equal(input.style.height,height);
+  await overlay.copyPreview();assert.equal(copy.dataset.state,'copied');
+  let finish;e.session.stop=()=>new Promise(resolve=>finish=resolve);
+  const stopping=p.stopAndTranscribe();assert.equal(overlay.phase,'transcribing');assert.equal(accept.disabled,true);assert.equal(mic.disabled,true);
+  assert.equal(overlay.copyButton,copy);assert.equal(overlay.draftMarker.el.dataset.phase,'transcribing');
+  input.scrollHeight=1000;finish('new');await stopping;
+  assert.equal(input.value,'Hello new world');assert.equal(input.style.height,height);assert.equal(copy.dataset.state,'idle');
+  assert.equal(overlay.copyButton,copy);assert.equal(overlay.microphoneButton,mic);assert.equal(overlay.acceptButton,accept);
+  assert.equal(overlay.draftMarker,undefined);assert.equal(overlay.compactRecording,false);assert.equal(accept.disabled,false);assert.equal(mic.disabled,false);
+  assert.equal(overlay.visualEl.parentElement,overlay.footerVisual);
+});
+
+test('stopping with the same microphone button and cancelling both clean up the draft marker',async()=>{
+  const e=recordingFixture(),p=e.plugin;
+  await p.onRecordCommand();await p.stopAndTranscribe();
+  const overlay=p.overlay,mic=overlay.microphoneButton;
+  await p.onRecordCommand();const marker=overlay.draftMarker;
+  mic.events.click(key('click'));await new Promise(setImmediate);
+  assert.equal(overlay.phase,'confirm');assert.equal(marker.el,undefined);assert.equal(overlay.microphoneButton,mic);
+  await p.onRecordCommand();const cancelledMarker=overlay.draftMarker;p.cancelSession();
+  assert.equal(cancelledMarker.el,undefined);assert.equal(overlay.phase,'confirm');assert.equal(overlay.microphoneButton,mic);
+  await p.onRecordCommand();const closedMarker=overlay.draftMarker;p.closeOverlay();
+  assert.equal(closedMarker.el,undefined);
 });

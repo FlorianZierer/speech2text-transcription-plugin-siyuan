@@ -76,41 +76,68 @@ drawProcessing(now){
   }
   ctx.globalAlpha=1;
 }
-show(e="preparing"){if(this.root){this.setPhase(e);return}const t=document.createElement("div");t.className="plugin-voice2text-overlay";const n=document.createElement("div");n.className="plugin-voice2text-overlay__card";const i=document.createElement("div");i.className="plugin-voice2text-overlay__head";const l=document.createElement("span");l.className="plugin-voice2text-overlay__dot",i.appendChild(l),this.statusEl=document.createElement("span"),this.statusEl.className="plugin-voice2text-overlay__status",this.statusEl.setAttribute("role","status"),i.appendChild(this.statusEl),this.timerEl=document.createElement("span"),this.timerEl.className="plugin-voice2text-overlay__timer",this.timerEl.textContent="0:00",i.appendChild(this.timerEl);const s=document.createElement("button");s.className="plugin-voice2text-overlay__close",s.type="button",s.setAttribute("aria-label",this.texts.cancel),s.title=this.texts.cancel,s.textContent="\u2715",s.addEventListener("mousedown",c=>c.preventDefault()),s.addEventListener("click",c=>{var v,p;c.preventDefault(),c.stopPropagation(),this.phase==="confirm"?(p=(v=this.callbacks).onDiscard)==null||p.call(v):this.callbacks.onCancel()}),i.appendChild(s),this.canvas=document.createElement("canvas"),this.canvas.className="plugin-voice2text-overlay__wave",this.canvas.setAttribute("aria-hidden","true");const a=P*(A+J),o=window.devicePixelRatio||1;this.canvas.width=a*o,this.canvas.height=K*o,this.canvas.style.width=`${a}px`,this.canvas.style.height=`${K}px`,this.ctx=this.canvas.getContext("2d"),this.ctx&&this.ctx.scale(o,o),this.previewEl=document.createElement("textarea"),this.previewEl.className="plugin-voice2text-overlay__preview",this.previewEl.rows=3,this.previewEl.readOnly=true,this.previewEl.setAttribute("aria-label",this.texts.preview),this.previewEl.addEventListener("input",()=>{this.callbacks.onEdit?.(this.previewEl.value);this.resetCopyState();this.updatePreviewSize();this.updateConfirmButtons()}),this.actionsEl=document.createElement("div"),this.actionsEl.className="plugin-voice2text-overlay__actions",n.appendChild(i);const visual=document.createElement("div");visual.className="plugin-voice2text-overlay__visual";visual.setAttribute("aria-hidden","true");visual.appendChild(this.canvas);const spinner=document.createElement("div");spinner.className="plugin-voice2text-overlay__spinner";spinner.innerHTML='<svg viewBox="0 0 40 40"><circle class="plugin-voice2text-overlay__spinner-track" cx="20" cy="20" r="15"/><circle class="plugin-voice2text-overlay__spinner-arc" cx="20" cy="20" r="15"/></svg>';visual.appendChild(spinner);n.appendChild(visual),n.appendChild(this.previewEl),n.appendChild(this.actionsEl),t.appendChild(n),document.body.appendChild(t),this.root=t,document.addEventListener("keydown",this.onKeyDown,!0),this.fillIdleBars(),this.startedAt=Date.now(),this.timerHandle=window.setInterval(()=>this.tickTimer(),250),this.setPhase(e),this.rafHandle=window.requestAnimationFrame(this.draw)}checkButton(e,t,icon="check"){const n=document.createElement("button");return n.type="button",n.className="plugin-voice2text-overlay__check",n.title=e,n.setAttribute("aria-label",e),n.innerHTML=`<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="${icon==="upload"?"M12 19V5m-6 6 6-6 6 6":icon==="mic"?"M9 6a3 3 0 0 1 6 0v6a3 3 0 0 1-6 0V6m-3 5v1a6 6 0 0 0 12 0v-1m-6 7v3m-3 0h6":"M5 12.5l4.5 4.5L19 7.5"}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,n.addEventListener("mousedown",i=>i.preventDefault()),n.addEventListener("click",i=>{i.preventDefault(),i.stopPropagation(),t()}),n}renderActions(){
+show(e="preparing"){if(this.root){this.setPhase(e);return}const t=document.createElement("div");t.className="plugin-voice2text-overlay";const n=document.createElement("div");n.className="plugin-voice2text-overlay__card";this.cardEl=n;const i=document.createElement("div");i.className="plugin-voice2text-overlay__head";const l=document.createElement("span");l.className="plugin-voice2text-overlay__dot",i.appendChild(l),this.statusEl=document.createElement("span"),this.statusEl.className="plugin-voice2text-overlay__status",this.statusEl.setAttribute("role","status"),i.appendChild(this.statusEl),this.timerEl=document.createElement("span"),this.timerEl.className="plugin-voice2text-overlay__timer",this.timerEl.textContent="0:00",i.appendChild(this.timerEl);const s=document.createElement("button");s.className="plugin-voice2text-overlay__close",s.type="button",s.setAttribute("aria-label",this.texts.cancel),s.title=this.texts.cancel,s.textContent="\u2715",s.addEventListener("mousedown",c=>c.preventDefault()),s.addEventListener("click",c=>{var v,p;c.preventDefault(),c.stopPropagation(),this.phase==="confirm"?(p=(v=this.callbacks).onDiscard)==null||p.call(v):this.callbacks.onCancel()}),i.appendChild(s),this.canvas=document.createElement("canvas"),this.canvas.className="plugin-voice2text-overlay__wave",this.canvas.setAttribute("aria-hidden","true");const a=P*(A+J),o=window.devicePixelRatio||1;this.canvas.width=a*o,this.canvas.height=K*o,this.canvas.style.width=`${a}px`,this.canvas.style.height=`${K}px`,this.ctx=this.canvas.getContext("2d"),this.ctx&&this.ctx.scale(o,o),this.previewEl=document.createElement("textarea"),this.previewEl.className="plugin-voice2text-overlay__preview",this.previewEl.rows=3,this.previewEl.readOnly=true,this.previewEl.setAttribute("aria-label",this.texts.preview),this.previewEl.addEventListener("input",()=>{this.callbacks.onEdit?.(this.previewEl.value);this.resetCopyState();this.updatePreviewSize();this.updateConfirmButtons()}),this.actionsEl=document.createElement("div"),this.actionsEl.className="plugin-voice2text-overlay__actions",n.appendChild(i);const visual=document.createElement("div");visual.className="plugin-voice2text-overlay__visual";this.visualEl=visual;visual.setAttribute("aria-hidden","true");visual.appendChild(this.canvas);const spinner=document.createElement("div");spinner.className="plugin-voice2text-overlay__spinner";spinner.innerHTML='<svg viewBox="0 0 40 40"><circle class="plugin-voice2text-overlay__spinner-track" cx="20" cy="20" r="15"/><circle class="plugin-voice2text-overlay__spinner-arc" cx="20" cy="20" r="15"/></svg>';visual.appendChild(spinner);n.appendChild(visual),n.appendChild(this.previewEl),n.appendChild(this.actionsEl),t.appendChild(n),document.body.appendChild(t),this.root=t,document.addEventListener("keydown",this.onKeyDown,!0),this.fillIdleBars(),this.startedAt=Date.now(),this.timerHandle=window.setInterval(()=>this.tickTimer(),250),this.setPhase(e),this.rafHandle=window.requestAnimationFrame(this.draw)}checkButton(e,t,icon="check"){const n=document.createElement("button");return n.type="button",n.className="plugin-voice2text-overlay__check",n.title=e,n.setAttribute("aria-label",e),n.innerHTML=`<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="${icon==="upload"?"M12 19V5m-6 6 6-6 6 6":icon==="mic"?"M9 6a3 3 0 0 1 6 0v6a3 3 0 0 1-6 0V6m-3 5v1a6 6 0 0 0 12 0v-1m-6 7v3m-3 0h6":"M5 12.5l4.5 4.5L19 7.5"}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,n.addEventListener("mousedown",i=>i.preventDefault()),n.addEventListener("click",i=>{i.preventDefault(),i.stopPropagation(),t()}),n}renderActions(){
   const actions=this.actionsEl;
   if(!actions)return;
-  actions.innerHTML="";
-  this.copyButton=undefined;this.acceptButton=undefined;
-  if(this.phase==="listening")actions.appendChild(this.checkButton(this.texts.stop,()=>this.callbacks.onStop()));
-  if(this.phase==="confirm"){
-    this.copyButton=this.checkButton(this.texts.copy,()=>this.copyPreview());
-    this.copyButton.className="plugin-voice2text-overlay__copy";
-    actions.appendChild(this.copyButton);
-    const microphone=this.checkButton(this.texts.recordMore,()=>this.callbacks.onRecordMore?.(),"mic");
-    microphone.className="plugin-voice2text-overlay__microphone";
-    actions.appendChild(microphone);
-    this.acceptButton=this.checkButton(this.texts.accept,()=>this.callbacks.onAccept?.(),"upload");
-    actions.appendChild(this.acceptButton);
-    this.resetCopyState();this.updateConfirmButtons();
+  if(this.phase==="confirm"||this.compactRecording){
+    // Keep the same controls and footer slot throughout additional dictation.
+    if(!this.copyButton){
+      actions.innerHTML="";
+      this.footerVisual=document.createElement("div");
+      this.footerVisual.className="plugin-voice2text-overlay__footer-visual";
+      actions.appendChild(this.footerVisual);
+      this.copyButton=this.checkButton(this.texts.copy,()=>this.copyPreview());
+      this.copyButton.className="plugin-voice2text-overlay__copy";
+      actions.appendChild(this.copyButton);
+      this.microphoneButton=this.checkButton(this.texts.recordMore,()=>{
+        if(this.compactRecording){if(this.phase!=="transcribing")this.callbacks.onStop()}
+        else this.callbacks.onRecordMore?.();
+      },"mic");
+      this.microphoneButton.className="plugin-voice2text-overlay__microphone";
+      actions.appendChild(this.microphoneButton);
+      this.acceptButton=this.checkButton(this.texts.accept,()=>{
+        if(this.phase==="confirm")this.callbacks.onAccept?.();
+      },"upload");
+      actions.appendChild(this.acceptButton);this.resetCopyState();
+    }
+    const label=this.compactRecording?this.texts.stop:this.texts.recordMore;
+    this.microphoneButton.title=label;this.microphoneButton.setAttribute("aria-label",label);
+    this.microphoneButton.disabled=this.phase==="transcribing";
+    this.microphoneButton.setAttribute("aria-pressed",String(!!this.compactRecording));
+    this.microphoneButton.innerHTML=this.compactRecording
+      ?'<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/></svg>'
+      :'<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3m-3 0h6"/></svg>';
+    this.updateConfirmButtons();return;
   }
+  actions.innerHTML="";
+  this.copyButton=undefined;this.acceptButton=undefined;this.microphoneButton=undefined;
+  if(this.phase==="listening")actions.appendChild(this.checkButton(this.texts.stop,()=>this.callbacks.onStop()));
 }
 getPreview(){return this.previewEl?.value||""}
 focusPreview(start=this.getPreview().length,end=start){
   if(!this.previewEl||this.phase!=="confirm")return;
   this.previewEl.focus({preventScroll:true});this.previewEl.setSelectionRange(start,end);
 }
-beginRecording(){
+beginRecording(draft){
+  this.compactRecording=true;this.draftLayoutLocked=true;
+  // Freeze the existing review dimensions; extra text scrolls inside the field.
+  const width=this.cardEl.getBoundingClientRect().width;
+  if(width>0){this.cardEl.style.boxSizing="border-box";this.cardEl.style.width=`${width}px`}
+  this.root.dataset.layout="review";
+  this.footerVisual.appendChild(this.visualEl);
+  this.draftMarker?.destroy();
+  this.draftMarker=new VoiceInsertionMarker({kind:"field",el:this.previewEl,start:draft.start},{draft:true});
   this.startedAt=Date.now();this.lastSpawn=0;this.pendingPeak=0;
   this.fillIdleBars();this.tickTimer();this.setPhase("preparing");
 }
 updatePreviewSize(){
-  if(!this.previewEl)return;
+  if(!this.previewEl||this.draftLayoutLocked)return;
   this.previewEl.style.height="auto";
   this.previewEl.style.height=`${this.previewEl.scrollHeight+2}px`;
 }
 updateConfirmButtons(){
   const empty=!this.getPreview().trim();
-  if(this.acceptButton)this.acceptButton.disabled=empty;
+  if(this.acceptButton)this.acceptButton.disabled=empty||this.phase!=="confirm";
   if(this.copyButton)this.copyButton.disabled=empty;
 }
 resetCopyState(){
@@ -143,12 +170,31 @@ async copyPreview(){
   button.innerHTML=`<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="${copied?"M5 12.5l4.5 4.5L19 7.5":"M12 5v9m0 4v1"}"/></svg>`;
   this.copyTimer=window.setTimeout(()=>this.resetCopyState(),1600);
 }
-setPhase(e){if(e==="transcribing"&&this.phase!==e){this.processingStartedAt=performance.now();this.processingWaveOpacity=this.phase==="listening"?1:.4}this.phase=e,this.root&&(this.root.dataset.phase=e,this.root.setAttribute("aria-busy",String(e==="transcribing")),this.statusEl&&(this.statusEl.textContent=this.texts[e]),this.timerEl&&(this.timerEl.style.display=e==="listening"||e==="preparing"?"":"none"),this.renderActions(),this.previewEl&&(this.previewEl.readOnly=e!=="confirm",e==="confirm"&&(this.previewEl.style.display="block"),this.updatePreviewSize()),this.callbacks.onPhase?.(e),this.dirty=!0)}pushLevel(e){const t=Math.min(1,Math.sqrt(Math.max(0,e))*2.2);t>this.pendingPeak&&(this.pendingPeak=t)}spawnBar(e){for(this.bars.push({target:Math.max(H,e),current:0});this.bars.length>P+2;)this.bars.shift()}fillIdleBars(){this.bars=[];for(let e=0;e<P+2;e++)this.bars.push({target:H,current:H})}setPreview(e){this.previewEl&&(this.previewEl.value=e,this.previewEl.style.display=e?"block":"none",this.updatePreviewSize(),this.updateConfirmButtons())}tickTimer(){if(!this.timerEl)return;const e=Math.floor((Date.now()-this.startedAt)/1e3),t=Math.floor(e/60),n=e%60;this.timerEl.textContent=`${t}:${String(n).padStart(2,"0")}`}hide(){var e;window.clearTimeout(this.copyTimer);this.copyButton=undefined;this.acceptButton=undefined;document.removeEventListener("keydown",this.onKeyDown,!0),this.timerHandle!==void 0&&window.clearInterval(this.timerHandle),this.rafHandle!==void 0&&window.cancelAnimationFrame(this.rafHandle),this.timerHandle=void 0,this.rafHandle=void 0,(e=this.root)==null||e.remove(),this.root=void 0,this.statusEl=void 0,this.timerEl=void 0,this.previewEl=void 0,this.actionsEl=void 0,this.canvas=void 0,this.ctx=null,this.bars=[],this.pendingPeak=0,this.lastSpawn=0}}// A visual bookmark only: never insert decoration nodes into the editor's content.
+setPhase(phase){
+  if(phase==="transcribing"&&this.phase!==phase){
+    this.processingStartedAt=performance.now();this.processingWaveOpacity=this.phase==="listening"?1:.4;
+  }
+  if(phase==="confirm"){
+    this.compactRecording=false;this.draftMarker?.destroy();this.draftMarker=undefined;
+    if(this.root)this.root.dataset.layout="review";
+  }
+  this.phase=phase;
+  if(!this.root)return;
+  this.root.dataset.phase=phase;
+  this.root.setAttribute("aria-busy",String(phase==="transcribing"));
+  if(this.statusEl)this.statusEl.textContent=this.texts[this.compactRecording?"confirm":phase];
+  if(this.timerEl)this.timerEl.style.display=!this.compactRecording&&(phase==="listening"||phase==="preparing")?"":"none";
+  this.renderActions();
+  if(this.previewEl){this.previewEl.readOnly=phase!=="confirm";if(phase==="confirm")this.previewEl.style.display="block";this.updatePreviewSize()}
+  this.draftMarker?.setPhase(phase);
+  this.callbacks.onPhase?.(phase);this.dirty=true;
+}
+pushLevel(e){const t=Math.min(1,Math.sqrt(Math.max(0,e))*2.2);t>this.pendingPeak&&(this.pendingPeak=t)}spawnBar(e){for(this.bars.push({target:Math.max(H,e),current:0});this.bars.length>P+2;)this.bars.shift()}fillIdleBars(){this.bars=[];for(let e=0;e<P+2;e++)this.bars.push({target:H,current:H})}setPreview(e){this.previewEl&&(this.previewEl.value!==e&&this.resetCopyState(),this.previewEl.value=e,this.previewEl.style.display=e?"block":"none",this.updatePreviewSize(),this.updateConfirmButtons())}tickTimer(){if(!this.timerEl)return;const e=Math.floor((Date.now()-this.startedAt)/1e3),t=Math.floor(e/60),n=e%60;this.timerEl.textContent=`${t}:${String(n).padStart(2,"0")}`}hide(){var e;this.draftMarker?.destroy();this.draftMarker=undefined;this.compactRecording=false;this.draftLayoutLocked=false;this.visualEl=undefined;this.cardEl=undefined;this.footerVisual=undefined;this.microphoneButton=undefined;window.clearTimeout(this.copyTimer);this.copyButton=undefined;this.acceptButton=undefined;document.removeEventListener("keydown",this.onKeyDown,!0),this.timerHandle!==void 0&&window.clearInterval(this.timerHandle),this.rafHandle!==void 0&&window.cancelAnimationFrame(this.rafHandle),this.timerHandle=void 0,this.rafHandle=void 0,(e=this.root)==null||e.remove(),this.root=void 0,this.statusEl=void 0,this.timerEl=void 0,this.previewEl=void 0,this.actionsEl=void 0,this.canvas=void 0,this.ctx=null,this.bars=[],this.pendingPeak=0,this.lastSpawn=0}}// A visual bookmark only: never insert decoration nodes into the editor's content.
 class VoiceInsertionMarker {
-  constructor(target){
-    this.target=target;
+  constructor(target,{draft=false}={}){
+    this.target=target;this.draft=draft;
     this.el=document.createElement("div");
-    this.el.className="plugin-voice2text-caret";
+    this.el.className="plugin-voice2text-caret"+(draft?" plugin-voice2text-caret--draft":"");
     this.el.setAttribute("aria-hidden","true");
     this.el.innerHTML='<svg viewBox="0 0 24 24" width="12" height="12"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3m-3 0h6"/></svg>';
     document.body.appendChild(this.el);
@@ -231,8 +277,10 @@ class VoiceInsertionMarker {
         if(/auto|scroll|hidden|clip/.test(style.overflowY)&&(y<bounds.top||y>bounds.bottom))return;
         if(/auto|scroll|hidden|clip/.test(style.overflowX)&&(x<bounds.left||x>bounds.right))return;
       }
-      this.el.style.left=`${x-9}px`;
-      this.el.style.top=`${Math.max(0,rect.top-20)}px`;
+      const top=this.draft?Math.max(host.getBoundingClientRect().top+2,rect.top-16):Math.max(0,rect.top-20);
+      this.el.style.left=`${x-(this.draft?7:9)}px`;
+      this.el.style.top=`${top}px`;
+      if(this.draft)this.el.style.setProperty("--voice-caret-stem-top",`${rect.top-top}px`);
       this.el.style.setProperty("--voice-caret-height",`${Math.min(40,rect.height+2)}px`);
       this.el.hidden=false;
     }catch{ /* A rerendered editor may have detached the saved range. */ }
@@ -290,7 +338,7 @@ async startRecording({preview=false,review=false}={}){
   if(preview){
     const input=this.overlay.previewEl;
     operation.draft={text:input.value,start:input.selectionStart,end:input.selectionEnd};
-    this.overlay.beginRecording();
+    this.overlay.beginRecording(operation.draft);
   }
   this.recordingOperation=operation;this.setPhase("preparing");
   try{
@@ -311,8 +359,8 @@ async startRecording({preview=false,review=false}={}){
       },
       onLevel:level=>{if(this.recordingOperation===operation&&!operation.stopping)operation.overlay.pushLevel(level)},
       onPartial:text=>{
-        if(this.recordingOperation!==operation||operation.stopping)return;
-        operation.overlay.setPreview(preview?this.mergeDictation(operation.draft,text).text:text);
+        if(this.recordingOperation!==operation||operation.stopping||preview)return;
+        operation.overlay.setPreview(text);
       }
     });
     if(this.recordingOperation!==operation){session.abort();return}
