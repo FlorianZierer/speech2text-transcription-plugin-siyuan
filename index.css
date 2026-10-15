@@ -72,9 +72,9 @@ to{opacity:1;transform:translateX(-50%) translateY(0)}
 /* The visual keeps its height as the waveform contracts into the loading ring. */
 .plugin-voice2text-overlay__visual{position:relative;display:flex;justify-content:center;align-items:center;height:40px}
 .plugin-voice2text-overlay__footer-visual{display:flex;align-items:center;flex:1 1 120px;min-width:0;height:30px;margin-right:auto}
-.plugin-voice2text-overlay__footer-visual .plugin-voice2text-overlay__visual{display:flex;width:120px;max-width:100%;height:30px}
-.plugin-voice2text-overlay__footer-visual .plugin-voice2text-overlay__wave{width:120px!important;max-width:100%;height:17px!important}
-.plugin-voice2text-overlay__footer-visual .plugin-voice2text-overlay__spinner{width:20px;height:20px}
+.plugin-voice2text-overlay__footer-visual .plugin-voice2text-overlay__visual{display:flex;width:100%;max-width:240px;height:30px}
+.plugin-voice2text-overlay__footer-visual .plugin-voice2text-overlay__wave{width:100%!important;max-width:240px;height:30px!important}
+.plugin-voice2text-overlay__footer-visual .plugin-voice2text-overlay__spinner{width:32px;height:32px}
 .plugin-voice2text-overlay[data-phase=confirm] .plugin-voice2text-overlay__footer-visual .plugin-voice2text-overlay__visual{display:flex;visibility:hidden}
 .plugin-voice2text-overlay__spinner{position:absolute;width:40px;height:40px;color:#f59a45;opacity:0;pointer-events:none}
 .plugin-voice2text-overlay__spinner svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round}
