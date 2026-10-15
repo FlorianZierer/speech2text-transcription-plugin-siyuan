@@ -1,0 +1,25 @@
+/*!
+ * MIT License
+ *
+ * Copyright (c) 2026 chenxuan
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+.plugin-voice2text-topbar.is-recording{color:var(--b3-card-error-color, #e64340);animation:plugin-voice2text-pulse 1.2s ease-in-out infinite}.plugin-voice2text-topbar.is-transcribing{color:var(--b3-card-warning-color, #f0a020)}@keyframes plugin-voice2text-pulse{0%{opacity:1}50%{opacity:.35}100%{opacity:1}}.plugin-voice2text-overlay{position:fixed;left:50%;bottom:48px;transform:translateX(-50%);z-index:10000;pointer-events:none;animation:plugin-voice2text-rise .16s ease-out}.plugin-voice2text-overlay__card{pointer-events:auto;display:flex;flex-direction:column;gap:10px;min-width:300px;max-width:min(560px,90vw);padding:14px 18px;border-radius:12px;background:var(--b3-menu-background, #2c2c2c);border:1px solid var(--b3-border-color, rgba(255, 255, 255, 0.12));box-shadow:var(--b3-dialog-shadow, 0 8px 32px rgba(0, 0, 0, 0.32));color:var(--b3-theme-on-surface, #d8d8d8)}.plugin-voice2text-overlay__head{display:flex;align-items:center;gap:8px;font-size:13px;user-select:none}.plugin-voice2text-overlay__dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;background:var(--b3-theme-on-surface-light, #888)}.plugin-voice2text-overlay__status{flex:1 1 auto}.plugin-voice2text-overlay__timer{font-variant-numeric:tabular-nums;opacity:.6;font-size:12px}.plugin-voice2text-overlay__wave{display:block;align-self:center}.plugin-voice2text-overlay__preview{display:none;max-height:7.5em;overflow-y:auto;font-size:13px;line-height:1.5;opacity:.55;font-style:italic;word-break:break-word}.plugin-voice2text-overlay__actions{display:flex;justify-content:flex-end;gap:8px}.plugin-voice2text-overlay__actions:empty{display:none}.plugin-voice2text-overlay__close{flex:0 0 auto;border:0;background:none;padding:0 2px;cursor:pointer;font-size:13px;line-height:1;color:inherit;opacity:.4;transition:opacity .12s ease}.plugin-voice2text-overlay__close:hover{opacity:.9}.plugin-voice2text-overlay__check{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:0;border-radius:50%;cursor:pointer;background:var(--b3-theme-primary, #3575f0);color:var(--b3-theme-on-primary, #fff);transition:transform .12s ease,opacity .12s ease}.plugin-voice2text-overlay__check:hover{opacity:.88}.plugin-voice2text-overlay__check:active{transform:scale(0.93)}.plugin-voice2text-overlay[data-phase=listening] .plugin-voice2text-overlay__dot{background:var(--b3-card-error-color, #e64340);animation:plugin-voice2text-pulse 1.2s ease-in-out infinite}.plugin-voice2text-overlay[data-phase=transcribing] .plugin-voice2text-overlay__dot{background:var(--b3-card-warning-color, #f0a020);animation:plugin-voice2text-pulse .9s ease-in-out infinite}.plugin-voice2text-overlay[data-phase=confirm] .plugin-voice2text-overlay__dot{background:var(--b3-card-success-color, #65b687)}.plugin-voice2text-overlay[data-phase=confirm] .plugin-voice2text-overlay__preview{opacity:.95;font-style:normal}.plugin-voice2text-overlay[data-phase=confirm] .plugin-voice2text-overlay__wave{display:none}@keyframes plugin-voice2text-rise{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}

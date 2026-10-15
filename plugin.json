@@ -2,21 +2,35 @@
   "name": "siyuan-plugin-voice2text",
   "author": "chenxuan",
   "url": "https://github.com/chenxuan520/siyuan-plugin-voice2text",
-  "version": "0.1.4",
+  "version": "0.8.0",
   "minAppVersion": "3.0.0",
-  "backends": ["all"],
-  "frontends": ["desktop", "desktop-window", "browser-desktop"],
+  "backends": [
+    "all"
+  ],
+  "frontends": [
+    "desktop",
+    "desktop-window",
+    "browser-desktop"
+  ],
   "displayName": {
     "default": "Voice to Text",
     "zh-CN": "语音转文字"
   },
   "description": {
-    "default": "Record your voice and insert the recognized text at the cursor. Multiple recognition providers supported (Xiaomi MiMo, browser Web Speech).",
-    "zh-CN": "录音并把识别出的文字插入到当前光标处，支持多种识别服务（小米 MiMo、浏览器 Web Speech）。"
+    "default": "Record your voice and insert the recognized text at the cursor. Works with any transcription service exposing an /audio/transcriptions endpoint, or with the browser's built-in recognition.",
+    "zh-CN": "录音并把识别出的文字插入到当前光标处。可对接任何提供 /audio/transcriptions 端点的转写服务，也可使用浏览器自带识别。"
   },
   "readme": {
     "default": "README.md",
     "zh-CN": "README.md"
   },
-  "keywords": ["asr", "voice", "speech-to-text", "mimo", "web-speech", "语音转文字"]
+  "keywords": [
+    "asr",
+    "voice",
+    "speech-to-text",
+    "dictation",
+    "transcription",
+    "web-speech",
+    "语音转文字"
+  ]
 }
