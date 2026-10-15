@@ -1,5 +1,7 @@
 # Transcription
 
+<img src="icon.png" width="80" height="80" alt="Transcription icon">
+
 A speech-to-text plugin for **SiYuan**, with your choice of transcription service, refined animations, and improved text insertion.
 
 This project is a fork of [SiYuan Voice to Text](https://github.com/chenxuan520/siyuan-plugin-voice2text) by [chenxuan (chenxuan520)](https://github.com/chenxuan520). Credit for the original plugin goes to its author; this fork builds on that foundation with a more fluid dictation and editing workflow.
@@ -21,7 +23,7 @@ The API must accept multipart audio transcription requests and return recognized
 
 ## Setup
 
-1. Enable the plugin in SiYuan and open its settings.
+1. Enable **Transcription** in SiYuan and open its settings. The plugin folder and the repository are both named `speech2text-transcription-plugin-siyuan`.
 2. Choose **Transcription API** or **Browser Web Speech**.
 3. For an API service, enter its base URL, API key, and model. The plugin appends `/audio/transcriptions` to the base URL if needed. If your server requires no API key, enter a placeholder.
 4. Choose a recognition language or automatic detection. Optionally add vocabulary hints for names and technical terms.
@@ -53,6 +55,12 @@ Dictation started with the shortcut always opens the preview. The preview receiv
 - System audio capture depends on the browser and operating system. A virtual audio device can be selected as an alternative input.
 - Optional recording tail, silence padding, and start/stop sounds help avoid clipped words and make recording boundaries clearer.
 
+## Upgrading from the earlier fork
+
+The repository is [FlorianZierer/speech2text-transcription-plugin-siyuan](https://github.com/FlorianZierer/speech2text-transcription-plugin-siyuan). The plugin folder inside a SiYuan workspace must be named `speech2text-transcription-plugin-siyuan`.
+
+When no configured service is saved under the new name, the plugin checks previous installation names and imports the first usable configuration. Disable the older plugin when enabling Transcription to avoid duplicate toolbar buttons and shortcuts.
+
 ## Development
 
 This repository contains the plugin files directly: `index.js`, `index.css`, `plugin.json`, and `i18n/`.
@@ -62,6 +70,8 @@ Run the interaction regression tests with Node.js:
 ```sh
 node --test tests/overlay.test.cjs
 ```
+
+The editable marketplace icon is in `assets/icon.svg`. See `scripts/render-icon.c` for the macOS PNG export command.
 
 These tests use a simulated DOM. Check visual layout, animations, and cursor positioning in SiYuan as well.
 

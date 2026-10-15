@@ -1,5 +1,5 @@
 {
-  "topBarTitle": "Sprache zu Text (klicken, um die Aufnahme zu starten oder zu beenden)",
+  "topBarTitle": "Transcription (klicken, um die Aufnahme zu starten oder zu beenden)",
   "settingProvider": "Spracherkennungsdienst",
   "settingProviderDesc": "Wähle einen Dienst zur Spracherkennung und trage unten seine Zugangsdaten und Einstellungen ein.",
   "providerWebSpeech": "Spracherkennung des Browsers",
@@ -13,7 +13,7 @@
   "noEditor": "Es wurde kein aktives Dokument zum Einfügen gefunden.",
   "errNoCursor": "Der Text wurde erkannt, aber es wurde keine gültige Einfügestelle gefunden. Klicke vor der Aufnahme an die gewünschte Stelle im Text.",
   "errInsertFailed": "Der Text wurde erkannt, konnte aber nicht eingefügt werden",
-  "errMobileUnsupported": "Sprache zu Text wird hier nicht unterstützt. Nutze SiYuan auf dem Desktop oder in einem Desktop-Browser.",
+  "errMobileUnsupported": "Transcription wird hier nicht unterstützt. Nutze SiYuan auf dem Desktop oder in einem Desktop-Browser.",
   "errNoProvider": "Der ausgewählte Spracherkennungsdienst wurde nicht gefunden. Wähle ihn in den Einstellungen erneut aus.",
   "errWebSpeechUnsupported": "Dieser Browser unterstützt keine integrierte Spracherkennung. Bitte verwende einen anderen Dienst.",
   "langDe": "Deutsch",

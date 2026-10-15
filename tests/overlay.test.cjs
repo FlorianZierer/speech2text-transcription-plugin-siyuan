@@ -20,7 +20,7 @@ function environment(){
     set innerHTML(v){this.html=v;this.children=[]}
     get innerHTML(){return this.html}
     contains(el){return this===el||this.children.some(child=>child.contains(el))}
-    closest(selector){return selector==='.plugin-voice2text-overlay'?(this.className===selector.slice(1)?this:this.parentElement?.closest(selector)):null}
+    closest(selector){return selector==='.plugin-transcription-overlay'?(this.className===selector.slice(1)?this:this.parentElement?.closest(selector)):null}
     getBoundingClientRect(){return this.rect||rect}
     getClientRects(){return this.isConnected?[this.getBoundingClientRect()]:[]}
     focus(){document.activeElement=this}
@@ -41,15 +41,16 @@ function environment(){
     setInterval:f=>{const id=nextTimer++;timers.set(id,f);return id},clearInterval:id=>timers.delete(id),
     setTimeout:f=>{const id=nextTimer++;timers.set(id,f);return id},clearTimeout:id=>timers.delete(id),
     requestAnimationFrame:()=>nextTimer++,cancelAnimationFrame(){}};
+  const api={Plugin:class{},getFrontend:()=> 'desktop',showMessage:(...args)=>messages.push(args)};
   const context={document,window,HTMLElement:Element,HTMLTextAreaElement:Textarea,HTMLInputElement:Input,
     navigator:{clipboard:{writeText:async()=>{}}},performance:{now:()=>0},console,module:{exports:{}},
     getComputedStyle:el=>({getPropertyValue:()=>'',direction:'ltr',overflowX:'visible',overflowY:'visible',fontSize:'16px',lineHeight:'20px',...el.computedStyle}),
-    require:()=>({Plugin:class{},getFrontend:()=> 'desktop',showMessage:(...args)=>messages.push(args)})};
+    require:()=>api};
   vm.createContext(context);
   const source=fs.readFileSync(require.resolve('../index.js'),'utf8').replace('module.exports=L','globalThis.Overlay=Ne;globalThis.Marker=VoiceInsertionMarker;module.exports=L');
   vm.runInContext(source,context);
   const texts={copy:'Copy',copied:'Copied',copyFailed:'Failed',accept:'Insert',stop:'Stop',preview:'Transcript'};
-  return {...context,context,Element,Textarea,texts,timers,messages,documentListeners,windowListeners,Plugin:context.module.exports.default};
+  return {...context,context,api,Element,Textarea,texts,timers,messages,documentListeners,windowListeners,Plugin:context.module.exports.default};
 }
 const key=(value,extras={})=>({key:value,preventDefault(){this.prevented=true},stopPropagation(){},...extras});
 
@@ -267,4 +268,24 @@ test('stopping with the same microphone button and cancelling both clean up the 
   assert.equal(cancelledMarker.el,undefined);assert.equal(overlay.phase,'confirm');assert.equal(overlay.microphoneButton,mic);
   await p.onRecordCommand();const closedMarker=overlay.draftMarker;p.closeOverlay();
   assert.equal(closedMarker.el,undefined);
+});
+
+
+test('renamed plugin imports a usable previous configuration without changing its source',async()=>{
+  const e=environment(),p=new e.Plugin(),reads=[],saves=[];
+  p.name='speech2text-transcription-plugin-siyuan';p.loadData=async()=>undefined;
+  p.saveData=async(name,data)=>saves.push({name,data});
+  const previous={provider:'whisper',cfg:{whisper:{baseUrl:'https://example.test/v1',apiKey:'test-key',model:'custom'}},general:{confirm:true,deviceId:'saved-mic'}};
+  e.api.fetchSyncPost=async(endpoint,{path})=>{reads.push(path);return path.includes('/siyuan-plugin-voice2text/')?previous:{}};
+  await p.loadConfig();
+  assert.equal(reads.length,2);assert.match(reads[0],/siyuan-plugin-voice2text-any-model/);
+  assert.equal(p.config.cfg.whisper.model,'custom');assert.equal(p.config.general.deviceId,'saved-mic');assert.equal(p.config.general.confirm,true);
+  assert.equal(saves.length,1);assert.equal(saves[0].name,'config.json');assert.equal(previous.general.deviceId,'saved-mic');
+});
+
+test('renamed plugin preserves its own configured service instead of importing an older one',async()=>{
+  const e=environment(),p=new e.Plugin();p.name='speech2text-transcription-plugin-siyuan';
+  p.loadData=async()=>({provider:'whisper',cfg:{whisper:{baseUrl:'https://new.example.test/v1',apiKey:'new-key'}},general:{confirm:true}});
+  e.api.fetchSyncPost=async()=>{assert.fail('Should not read legacy settings')};
+  await p.loadConfig();assert.equal(p.config.cfg.whisper.baseUrl,'https://new.example.test/v1');
 });

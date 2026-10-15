@@ -1,7 +1,7 @@
 {
-  "name": "siyuan-plugin-voice2text",
-  "author": "chenxuan",
-  "url": "https://github.com/chenxuan520/siyuan-plugin-voice2text",
+  "name": "speech2text-transcription-plugin-siyuan",
+  "author": "FlorianZierer",
+  "url": "https://github.com/FlorianZierer/speech2text-transcription-plugin-siyuan",
   "version": "0.8.0",
   "minAppVersion": "3.0.0",
   "backends": [
@@ -13,28 +13,36 @@
     "browser-desktop"
   ],
   "displayName": {
-    "default": "Voice to Text",
-    "de-DE": "Sprache zu Text",
-    "zh-CN": "语音转文字",
-    "de": "Sprache zu Text"
+    "default": "Transcription",
+    "en_US": "Transcription",
+    "de_DE": "Transcription",
+    "zh_CN": "Transcription 语音转写"
   },
   "description": {
-    "default": "Record your voice and insert the recognized text at the cursor. Works with any transcription service exposing an /audio/transcriptions endpoint, or with the browser's built-in recognition.",
-    "de-DE": "Nimm deine Stimme auf und füge den erkannten Text an der Cursorposition ein. Funktioniert mit Transkriptionsdiensten mit einem /audio/transcriptions-Endpunkt oder mit der integrierten Spracherkennung des Browsers.",
-    "zh-CN": "录音并把识别出的文字插入到当前光标处。可对接任何提供 /audio/transcriptions 端点的转写服务，也可使用浏览器自带识别。",
-    "de": "Nimm deine Stimme auf und füge den erkannten Text an der Cursorposition ein. Funktioniert mit Transkriptionsdiensten mit einem /audio/transcriptions-Endpunkt oder mit der integrierten Spracherkennung des Browsers."
+    "default": "Dictate into SiYuan with your own transcription API (any /audio/transcriptions endpoint, e.g. Whisper-compatible services) or browser speech recognition. Review and edit the text in a preview, add more dictation, and insert it exactly where your cursor was.",
+    "en_US": "Dictate into SiYuan with your own transcription API (any /audio/transcriptions endpoint, e.g. Whisper-compatible services) or browser speech recognition. Review and edit the text in a preview, add more dictation, and insert it exactly where your cursor was.",
+    "de_DE": "Diktiere in SiYuan mit deiner eigenen Transkriptions-API (jeder /audio/transcriptions-Endpunkt, z. B. Whisper-kompatible Dienste) oder der Spracherkennung des Browsers. Prüfe und bearbeite den Text in einer Vorschau, diktiere weiter und füge ihn genau an der ursprünglichen Cursorposition ein.",
+    "zh_CN": "使用你自己的转写 API（任何提供 /audio/transcriptions 端点的服务，例如兼容 Whisper 的服务）或浏览器语音识别在思源中听写。可在预览中检查和编辑文字、继续追加听写，并准确插入到原来的光标位置。"
   },
   "readme": {
-    "default": "README.md",
-    "zh-CN": "README.md"
+    "default": "README.md"
   },
   "keywords": [
-    "asr",
-    "voice",
-    "speech-to-text",
-    "dictation",
     "transcription",
+    "speech-to-text",
+    "stt",
+    "asr",
+    "dictation",
+    "voice",
+    "whisper",
+    "openai-compatible",
     "web-speech",
-    "语音转文字"
-  ]
+    "Transkription",
+    "Diktat",
+    "Spracherkennung",
+    "语音转文字",
+    "语音识别",
+    "听写"
+  ],
+  "icon": "icon.png"
 }

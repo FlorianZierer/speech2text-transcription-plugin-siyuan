@@ -1,5 +1,5 @@
 {
-  "topBarTitle": "语音转文字（点击开始/停止录音）",
+  "topBarTitle": "Transcription（点击开始/停止录音）",
   "settingProvider": "识别服务（Provider）",
   "settingProviderDesc": "选择语音识别方式，然后在下方填写该服务的配置。",
   "providerWebSpeech": "浏览器 Web Speech",
@@ -13,7 +13,7 @@
   "noEditor": "没有找到正在编辑的文档，无法插入文字。",
   "errNoCursor": "识别成功，但没有找到可用的编辑器光标，请先点一下要插入的位置再录音。",
   "errInsertFailed": "识别成功，但插入文本失败",
-  "errMobileUnsupported": "当前前端不支持语音转文字插件，请在桌面端或桌面浏览器中使用。",
+  "errMobileUnsupported": "当前前端不支持 Transcription，请在桌面端或桌面浏览器中使用。",
   "errNoProvider": "未找到所选识别服务，请在设置中重新选择。",
   "errWebSpeechUnsupported": "当前浏览器不支持 Web Speech 识别，请改用其它识别服务。",
   "langDe": "德语",
