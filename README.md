@@ -1,117 +1,70 @@
-# SiYuan 语音转文字插件（Voice to Text）
+# Transcription
 
-在思源笔记里用嘴说话，把语音识别成文字插入到当前光标处。**支持多种识别服务（Provider）**，可按需选择与扩展。
+A speech-to-text plugin for **SiYuan**, with your choice of transcription service, refined animations, and improved text insertion.
 
-## 功能
+This project is a fork of [SiYuan Voice to Text](https://github.com/chenxuan520/siyuan-plugin-voice2text) by [chenxuan (chenxuan520)](https://github.com/chenxuan520). Credit for the original plugin goes to its author; this fork builds on that foundation with a more fluid dictation and editing workflow.
 
-- 顶栏一个麦克风图标：点一下开始录音，再点一下停止并识别。
-- 识别结果自动插入到当前正在编辑的文档光标处。
-- 多 provider 架构：在设置里选择识别服务，各自填写配置。
+## Your API, your model
 
-## 内置识别服务
+Connect a hosted service or your own server with a compatible `/audio/transcriptions` endpoint. Configure the API base URL, API key, model, and recognition language yourself—the plugin is not tied to a single provider.
 
-| Provider | 说明 | 是否需要 key | 依赖 |
-|---|---|---|---|
-| 转写 API | HTTP 整段识别（`/audio/transcriptions`），多语种准确率高、自带标点 | 多数服务需要 api-key | 经思源内核转发代理调用，绕过跨域 |
-| 浏览器 Web Speech | 浏览器自带 `webkitSpeechRecognition`，零成本零后端 | 不需要 | 依赖浏览器/联网，中文准确率一般 |
+The API must accept multipart audio transcription requests and return recognized text. Browser Web Speech is also available where supported, without a separate API key.
 
-> HTTP provider 走思源内核的转发代理（`/api/network/forwardProxy`），无需自建后端。
+## What this fork adds
 
-### 转写 API
+- **Refined animations:** a live audio waveform smoothly turns into an orange loading ring while your recording is processed.
+- **Improved insertion logic:** the plugin remembers the original cursor position in a document or supported input field, even while you edit the preview. A small microphone marker shows where the text will go.
+- **Editable previews:** review and change the recognized text before inserting it, or use the copy icon to take it elsewhere. A brief checkmark confirms copying.
+- **Additional dictation:** place the cursor in the preview and click its microphone to add more speech. Selected text is replaced. A compact waveform appears beside the buttons while the preview keeps its size and position.
+- **Keyboard workflow:** start dictation with a configurable shortcut, press Enter to stop recording, then Enter again to accept the edited text.
+- **German localization:** interface labels follow SiYuan's language setting, with English, German, and Simplified Chinese translations included.
 
-适用于任何提供 `/audio/transcriptions` 端点的服务，无论托管还是自建。端点、模型与语言全部可配，插件不绑定任何特定厂商。
+## Setup
 
-- **API 基础地址**：服务的基础地址，插件自动追加 `/audio/transcriptions`。
-- **模型**：传给服务的 `model` 参数，可用名称取决于所配服务。
-- **识别语言**：默认自动检测；明确指定 ISO-639-1 代码（`de`、`en`、`fr`…）在短音频下更准。
-- **词汇提示**：逗号分隔的术语/人名，提升专业词汇拼写准确度。
+1. Enable the plugin in SiYuan and open its settings.
+2. Choose **Transcription API** or **Browser Web Speech**.
+3. For an API service, enter its base URL, API key, and model. The plugin appends `/audio/transcriptions` to the base URL if needed. If your server requires no API key, enter a placeholder.
+4. Choose a recognition language or automatic detection. Optionally add vocabulary hints for names and technical terms.
+5. Select your microphone. Enable **Confirm before inserting** if you want to review recordings started from the toolbar as well.
 
-该端点要求 `multipart/form-data`，而转发代理只能通过 `payloadEncoding: "base64-std"` 传递原始字节，
-因此 multipart 报文在 `src/providers/whisper.ts` 中按字节手工拼装后再 base64 传入。
-`contentType` 必须携带 boundary，否则服务端无法切分 part。单次录音上限约 25MB（base64 后）。
+Service settings and credentials are saved in your local SiYuan data. When using a transcription API, recordings are sent to the service you configure.
 
-## 录音边界与界面
+## Dictation workflow
 
-录音开头和结尾最容易丢字，原因有三个，分别由三个机制处理：
+Click the toolbar microphone or press **Alt+Shift+M** (**Option+Shift+M** on macOS) to begin. You can change the shortcut in SiYuan's keyboard settings under **Start / stop dictation**.
 
-| 机制 | 作用 | 默认值 |
-|---|---|---|
-| 就绪提示 | `getUserMedia` 与 `AudioContext` 启动有数百毫秒延迟，期间说的话根本没进采集。浮层在第一个音频块真正到达时才提示「请开始说话」，并可播放提示音 | — |
-| 尾音采集 | 点停止时最后一个音往往还压在缓冲区里。停止前继续采集一小段 | 400 ms |
-| 静音补白 | 识别模型在音频边界处容易吞字或产生幻觉，两端补数字静音可显著缓解 | 两端各 300 ms |
+| Action | Control |
+| --- | --- |
+| Finish recording | Enter, or the recording control |
+| Accept the preview at the original insertion point | Enter, or the up-arrow button |
+| Add a line break in the preview | Shift+Enter |
+| Dictate at the preview cursor | Preview microphone, or the dictation shortcut |
+| Copy the current draft | Copy icon |
+| Cancel an additional recording and keep the draft | Esc during additional dictation |
+| Discard the draft | Esc in the preview |
 
-补白只能修复「模型截断」，补不回从未采集到的声音——所以就绪提示同样重要。
+Dictation started with the shortcut always opens the preview. The preview receives keyboard focus automatically, and editing it does not change the original insertion target.
 
-录音时屏幕底部显示浮层：实时波形、计时、停止按钮，右上角 ✕ 取消。开启「插入前确认」后，
-识别结果先显示在可编辑的文本框中，可直接修改后再插入。文本框内 Enter 或上箭头按钮插入，Shift+Enter 换行，Esc 丢弃。
+## Compatibility
 
-文本框旁的小复制图标可复制当前修改后的文字，成功后短暂显示勾号，便于粘贴到其它应用。
-录音、识别和确认期间，原始插入位置旁会显示小麦克风图标；编辑预览不会改变该位置，插入后图标短暂变为勾号。
+- Supports the SiYuan desktop app and desktop browsers. Mobile frontends are not supported.
+- Browser microphone access requires HTTPS or localhost.
+- API transcription processes the complete recording after you stop. Browser Web Speech can also show interim results.
+- System audio capture depends on the browser and operating system. A virtual audio device can be selected as an alternative input.
+- Optional recording tail, silence padding, and start/stop sounds help avoid clipped words and make recording boundaries clearer.
 
-波形的数据率决定观感：音频块取 1024 样本（@16kHz ≈ 64ms），每块再细分 4 段算 RMS，
-约 62 个值/秒，与 60fps 基本吻合。值先入队，由 rAF 每帧取一个并做缓动，
-所以滚动是连续的而非每块一跳。用 4096 样本且每块只取一个值时每秒不到 4 个值，
-无论帧率多高都必然卡顿。
+## Development
 
-## 插入位置
+This repository contains the plugin files directly: `index.js`, `index.css`, `plugin.json`, and `i18n/`.
 
-插入目标分两类，录音开始时按当时的焦点决定：
+Run the interaction regression tests with Node.js:
 
-- **思源编辑器**：走 protyle 的 `insert()` API，限 `getAllEditor()` 能枚举到的实例。
-- **其它可编辑区**（Agent 面板输入框、搜索框、普通 textarea）：走原生
-  `execCommand("insertText")`，与用户直接打字的路径一致；直接改 `value` 常被框架忽略，
-  表现为「看得见字，发送出去是空的」。
-
-**Agent 面板输入框是个坑**：它不是 textarea，而是 lite 模式的 protyle 实例
-（`protyle/lite/fragmentEditor`，宿主带 `.protyle-lite-fragment`）。它不在
-`getAllEditor()` 的枚举范围内，所以拿不到可用的 `insert()`。因此判定规则不是
-「含 `.protyle-wysiwyg` 就算编辑器」，而是「没有已知编辑器认领这块可编辑区，就走原生输入」。
-
-焦点是持续跟踪的，而不是点话筒时才读 `activeElement`——那一刻焦点往往已经离开输入框，
-而文档里的旧选区还在，结果就是文字落进文档。密码框与只读控件被排除在外。
-
-Web Speech provider 支持流式中间结果，录音时会以灰色实时显示识别中的文字；
-转写 API 是整段识别，没有中间结果。
-
-## 使用前提
-
-- **必须是安全上下文**：通过 `https://` 或 `http://localhost` / `127.0.0.1` 访问思源，浏览器才允许使用麦克风。局域网 `http://192.168.x.x` 会被浏览器锁死麦克风。
-- 插件仅支持桌面端与桌面浏览器（`desktop` / `desktop-window` / `browser-desktop`），移动 App 与移动浏览器不支持。
-
-## 配置
-
-1. 启用插件后，打开插件设置。
-2. 在「识别服务（Provider）」里选择要用的服务。
-
-配置仅保存在本地思源数据中（`saveData`）。
-
-## 说明
-
-- 一期为「整段录完再识别」：录音期间不出字，停止后整段识别、一次性插入。
-
-## 扩展新的 Provider
-
-provider 接口在 `src/providers/types.ts`。新增一个 HTTP 类识别服务，只需在 `src/providers/` 下实现一个 `VoiceProvider`（提供 `fields` 配置项与 `createSession`），并在 `src/providers/index.ts` 注册即可。
-
-> 流式（如火山引擎 WebSocket，边说边出字）需要额外的增量回调与思源 `wsProxy` 支持，接口已预留 TODO，一期未实现。
-
-## 开发
-
-```bash
-npm install
-npm run dev     # 开发模式，产物输出到仓库根（index.js/index.css）
-npm run build   # 生产构建，产出 dist/ 与 package.zip
+```sh
+node --test tests/overlay.test.cjs
 ```
 
-开发时把本仓库放到思源工作区的 `data/plugins/siyuan-plugin-voice2text/` 下，即可热编译调试。
+These tests use a simulated DOM. Check visual layout, animations, and cursor positioning in SiYuan as well.
 
-界面交互回归测试（无需额外依赖）：`node --test tests/overlay.test.cjs`。这些测试使用 DOM 模拟；实际定位与动画仍需在思源中检查。
+## License and attribution
 
-### 键盘听写与追加听写
-
-- 默认快捷键 **Alt+Shift+M**（macOS：**⌥⇧M**）开始听写，可在思源的快捷键设置中修改插件命令「开始 / 停止听写」的按键。
-- 按 **Enter** 结束录音；识别后自动聚焦预览，直接修改，再按 **Enter** 插入。**Shift+Enter** 换行。快捷键启动的听写始终先显示预览。
-- 预览中的麦克风按钮（或再次使用快捷键）在预览光标处继续听写；选中的文字会被新听写替换。完成后仍可继续修改，最终确认才会插入原文档中最初记住的位置。
-- 追加听写中按 **Esc** 只取消本次录音，保留原来的草稿；预览中按 **Esc** 丢弃整个草稿。
-
-追加听写时预览窗口保持原有尺寸，文本框下方的按钮行显示小波形与加载动画，草稿光标旁的小麦克风标记本次插入位置。复制、麦克风和插入按钮保持原位；识别完成前插入按钮暂时禁用。
+The original plugin is by **chenxuan** and is licensed under the **MIT License**. Its copyright and license notices are preserved in the plugin files.
