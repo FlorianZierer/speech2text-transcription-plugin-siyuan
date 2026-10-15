@@ -2,7 +2,7 @@
   "name": "speech2text-transcription-plugin-siyuan",
   "author": "FlorianZierer",
   "url": "https://github.com/FlorianZierer/speech2text-transcription-plugin-siyuan",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "minAppVersion": "3.0.0",
   "backends": [
     "all"
