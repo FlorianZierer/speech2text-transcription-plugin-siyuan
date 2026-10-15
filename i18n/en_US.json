@@ -37,7 +37,7 @@
   "settingPadMs": "Silence padding (ms)",
   "settingPadMsDesc": "Digital silence added to both ends of the audio. Recognition models tend to swallow words right at the boundaries; padding prevents that.",
   "settingConfirm": "Confirm before inserting",
-  "settingConfirmDesc": "Show the recognized text first and insert it only on confirmation (Enter inserts, Esc discards).",
+  "settingConfirmDesc": "Review and edit the recognized text before inserting. Enter accepts, Shift+Enter adds a line, Esc discards. The dictation shortcut always opens the preview.",
   "settingCue": "Audio cue",
   "settingCueDesc": "Short tone when recording starts and stops.",
   "errNoMicrophone": "No microphone available. The browser only allows microphone access over https:// or on localhost.",
@@ -65,5 +65,11 @@
   "deviceUnnamed": "Input",
   "deviceMissing": "Saved device (not connected)",
   "errDisplayUnsupported": "This browser cannot capture system audio. Use a virtual audio device and select it as the input device instead.",
-  "errDisplayNoAudio": "The share contained no audio. Repeat it and tick the audio box in the browser's share dialog — on macOS this only works when sharing a browser tab."
+  "errDisplayNoAudio": "The share contained no audio. Repeat it and tick the audio box in the browser's share dialog — on macOS this only works when sharing a browser tab.",
+  "overlayPreview": "Recognized text — edit before inserting",
+  "overlayCopy": "Copy text",
+  "overlayCopied": "Copied",
+  "overlayCopyFailed": "Copy failed — try again",
+  "commandRecord": "Start / stop dictation",
+  "overlayRecordMore": "Dictate at the cursor in this draft"
 }

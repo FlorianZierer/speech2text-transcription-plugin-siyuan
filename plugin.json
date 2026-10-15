@@ -14,11 +14,15 @@
   ],
   "displayName": {
     "default": "Voice to Text",
-    "zh-CN": "语音转文字"
+    "de-DE": "Sprache zu Text",
+    "zh-CN": "语音转文字",
+    "de": "Sprache zu Text"
   },
   "description": {
     "default": "Record your voice and insert the recognized text at the cursor. Works with any transcription service exposing an /audio/transcriptions endpoint, or with the browser's built-in recognition.",
-    "zh-CN": "录音并把识别出的文字插入到当前光标处。可对接任何提供 /audio/transcriptions 端点的转写服务，也可使用浏览器自带识别。"
+    "de-DE": "Nimm deine Stimme auf und füge den erkannten Text an der Cursorposition ein. Funktioniert mit Transkriptionsdiensten mit einem /audio/transcriptions-Endpunkt oder mit der integrierten Spracherkennung des Browsers.",
+    "zh-CN": "录音并把识别出的文字插入到当前光标处。可对接任何提供 /audio/transcriptions 端点的转写服务，也可使用浏览器自带识别。",
+    "de": "Nimm deine Stimme auf und füge den erkannten Text an der Cursorposition ein. Funktioniert mit Transkriptionsdiensten mit einem /audio/transcriptions-Endpunkt oder mit der integrierten Spracherkennung des Browsers."
   },
   "readme": {
     "default": "README.md",
