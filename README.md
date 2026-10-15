@@ -55,12 +55,6 @@ Dictation started with the shortcut always opens the preview. The preview receiv
 - System audio capture depends on the browser and operating system. A virtual audio device can be selected as an alternative input.
 - Optional recording tail, silence padding, and start/stop sounds help avoid clipped words and make recording boundaries clearer.
 
-## Upgrading from the earlier fork
-
-The repository is [FlorianZierer/speech2text-transcription-plugin-siyuan](https://github.com/FlorianZierer/speech2text-transcription-plugin-siyuan). The plugin folder inside a SiYuan workspace must be named `speech2text-transcription-plugin-siyuan`.
-
-When no configured service is saved under the new name, the plugin checks previous installation names and imports the first usable configuration. Disable the older plugin when enabling Transcription to avoid duplicate toolbar buttons and shortcuts.
-
 ## Development
 
 This repository contains the plugin files directly: `index.js`, `index.css`, `plugin.json`, and `i18n/`.
